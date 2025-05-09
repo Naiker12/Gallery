@@ -5,146 +5,69 @@ import { ToastController } from '@ionic/angular';
   providedIn: 'root'
 })
 export class CustomToastService {
-  // Configuración por defecto para todos los toasts
-  private defaultOptions = {
-    duration: 2000,
-    position: 'top' as const,
-    cssClass: 'custom-toast',
-    animated: true,
-    mode: 'ios',
-  };
-
   constructor(private toastController: ToastController) {}
 
   /**
-   * @param options 
-   * Muestra un toast personalizado
-   * @param options Configuración del toast
-   * @returns Promise<HTMLIonToastElement>
-   */
-  async showToast(options: {
-    message: string;
-    duration?: number;
-    position?: 'top' | 'bottom' | 'middle';
-    color?: 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark';
-    icon?: string;
-    buttons?: any[];
-    cssClass?: string | string[];
-    header?: string;
-    translucent?: boolean;
-  }) {
-    const toast = await this.toastController.create({
-      ...this.defaultOptions,
-      message: options.message,
-      duration: options.duration || this.defaultOptions.duration,
-      position: options.position || this.defaultOptions.position,
-      color: options.color || 'primary',
-      icon: options.icon,
-      buttons: options.buttons,
-      cssClass: this.addCustomClass(options.cssClass),
-      header: options.header,
-      translucent: options.translucent || false,
-      mode: 'ios'
-    });
-
-    await toast.present();
-    return toast;
-  }
-
-  /**
-   * Toast de éxito con estilo personalizado
+   * Muestra un toast con mensaje de éxito
    * @param message Mensaje a mostrar
-   * @param duration Duración en ms (opcional)
-   * @param header Título del toast (opcional)
+   * @param duration Duración en milisegundos (opcional)
    */
-  async success(message: string, duration?: number, header?: string) {
-    return this.showToast({
+  async success(message: string, duration: number = 2000): Promise<void> {
+    const toast = await this.toastController.create({
       message,
       duration,
       color: 'success',
-      icon: 'checkmark-circle-outline',
-      cssClass: 'success-toast',
-      header
+      position: 'bottom',
+      icon: 'checkmark-circle'
     });
+    await toast.present();
   }
 
   /**
-   * Toast de error con estilo personalizado
+   * Muestra un toast con mensaje de error
    * @param message Mensaje a mostrar
-   * @param duration Duración en ms (opcional)
-   * @param header Título del toast (opcional)
+   * @param duration Duración en milisegundos (opcional)
    */
-  async error(message: string, duration?: number, header?: string) {
-    return this.showToast({
+  async error(message: string, duration: number = 3000): Promise<void> {
+    const toast = await this.toastController.create({
       message,
       duration,
       color: 'danger',
-      icon: 'close-circle-outline',
-      cssClass: 'error-toast',
-      header
+      position: 'bottom',
+      icon: 'alert-circle'
     });
+    await toast.present();
   }
 
   /**
-   * Toast de advertencia con estilo personalizado
+   * Muestra un toast con mensaje de advertencia
    * @param message Mensaje a mostrar
-   * @param duration Duración en ms (opcional)
-   * @param header Título del toast (opcional)
+   * @param duration Duración en milisegundos (opcional)
    */
-  async warning(message: string, duration?: number, header?: string) {
-    return this.showToast({
+  async warning(message: string, duration: number = 3000): Promise<void> {
+    const toast = await this.toastController.create({
       message,
       duration,
       color: 'warning',
-      icon: 'warning-outline',
-      cssClass: 'warning-toast',
-      header
+      position: 'bottom',
+      icon: 'warning'
     });
+    await toast.present();
   }
 
   /**
-   * Toast informativo con estilo personalizado
+   * Muestra un toast con mensaje informativo
    * @param message Mensaje a mostrar
-   * @param duration Duración en ms (opcional)
-   * @param header Título del toast (opcional)
+   * @param duration Duración en milisegundos (opcional)
    */
-  async info(message: string, duration?: number, header?: string) {
-    return this.showToast({
+  async info(message: string, duration: number = 2000): Promise<void> {
+    const toast = await this.toastController.create({
       message,
       duration,
       color: 'primary',
-      icon: 'information-circle-outline',
-      cssClass: 'info-toast',
-      header
+      position: 'bottom',
+      icon: 'information-circle'
     });
-  }
-
-  /**
-   * Toast con animación especial
-   * @param message Mensaje a mostrar
-   * @param icon Icono a mostrar (opcional)
-   */
-  async fancyToast(message: string, icon?: string) {
-    return this.showToast({
-      message,
-      duration: 2500,
-      color: 'dark',
-      icon: icon || 'star-outline',
-      cssClass: 'fancy-toast',
-      translucent: true,
-      position: 'top'
-    });
-  }
-
-  // Método privado para manejar clases CSS personalizadas
-  private addCustomClass(customClass?: string | string[]): string[] {
-    const baseClass = this.defaultOptions.cssClass;
-    if (!customClass) return [baseClass];
-    
-    if (Array.isArray(customClass)) {
-      return [baseClass, ...customClass];
-    }
-    
-    return [baseClass, customClass];
+    await toast.present();
   }
 }
