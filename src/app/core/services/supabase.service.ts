@@ -1,104 +1,60 @@
+// supabase.service.ts
 import { Injectable } from '@angular/core';
-import { supabase, SUPABASE_BUCKET_NAME } from '../firebase/supabase-config';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from 'src/environments/environment';
 import { CustomToastService } from './custom-toast.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SupabaseService {
+  private supabase: SupabaseClient;
+  private readonly BUCKET = 'gallery';
 
   constructor(private toastService: CustomToastService) {
-    // Ya no inicializamos el bucket automáticamente
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
-  /**
-   * Método público para crear el bucket si es necesario
-   * Puedes llamar a este método desde tu componente principal (por ejemplo, AppComponent)
-   */
-  async createBucketIfNotExists(): Promise<boolean> {
+  async uploadImage(file: File, path: string): Promise<{ url: string; path: string }> {
     try {
-      // Intentar crear el bucket directamente
-      // La mayoría de las APIs de Supabase manejan el caso cuando el bucket ya existe
-      const { data, error } = await supabase.storage.createBucket(SUPABASE_BUCKET_NAME, {
-        public: true,
-        fileSizeLimit: 5 * 1024 * 1024
-      });
-      
-      if (error) {
-        // Si el error es porque el bucket ya existe, no es realmente un error
-        if (error.message && (
-            error.message.includes('already exists') || 
-            error.message.includes('ya existe')
-          )) {
-          console.log('El bucket ya existe:', SUPABASE_BUCKET_NAME);
-          return true;
-        }
-        
-        console.error('Error al crear bucket:', error);
-        return false;
-      }
-      
-      console.log('Bucket creado correctamente:', SUPABASE_BUCKET_NAME);
-      return true;
-    } catch (error) {
-      console.error('Error inesperado al crear bucket:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Sube una imagen al bucket de Supabase
-   * @param file Imagen a subir
-   * @param path Ruta dentro del bucket
-   * @returns URL pública de la imagen
-   */
-  async uploadImage(file: File, path: string): Promise<{ url: string, path: string }> {
-    try {
-      // Subir imagen a Supabase
-      const { data, error } = await supabase.storage
-        .from(SUPABASE_BUCKET_NAME)
-        .upload(path, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        throw error;
-      }
+      const { data, error } = await this.supabase.storage.from(this.BUCKET).upload(path, file);
+      if (error) throw error;
 
       // Obtener URL pública
-      const { data: urlData } = supabase.storage
-        .from(SUPABASE_BUCKET_NAME)
-        .getPublicUrl(data.path);
+      const { data: publicUrlData } = this.supabase
+        .storage
+        .from(this.BUCKET)
+        .getPublicUrl(path);
 
-      return { 
-        url: urlData.publicUrl, 
-        path: data.path 
-      };
-    } catch (error) {
-      console.error('Error al subir imagen a Supabase:', error);
-      this.toastService.error('Error al subir imagen a Supabase');
-      throw error;
+      const url = publicUrlData?.publicUrl ?? '';
+
+      return { url, path };
+    } catch (err) {
+      console.error('Upload error:', err);
+      await this.toastService.error('Error al subir imagen');
+      throw err;
     }
   }
 
-  /**
-   * Elimina una imagen del bucket de Supabase
-   * @param path Ruta de la imagen a eliminar
-   */
   async deleteImage(path: string): Promise<void> {
     try {
-      const { error } = await supabase.storage
-        .from(SUPABASE_BUCKET_NAME)
-        .remove([path]);
+      const { error } = await this.supabase.storage.from(this.BUCKET).remove([path]);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Delete error:', err);
+      await this.toastService.error('Error al eliminar imagen');
+      throw err;
+    }
+  }
 
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error al eliminar imagen de Supabase:', error);
-      this.toastService.error('Error al eliminar imagen de Supabase');
-      throw error;
+  async createBucketIfNotExists(): Promise<boolean> {
+    try {
+      const { data, error } = await this.supabase.storage.createBucket(this.BUCKET, { public: true });
+      if (error && !error.message.includes('already exists')) throw error;
+      return true;
+    } catch (err) {
+      console.error('Bucket error:', err);
+      return false;
     }
   }
 }

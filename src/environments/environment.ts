@@ -1,3 +1,4 @@
+
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
@@ -12,7 +13,9 @@ export const environment = {
     messagingSenderId: "319531512055",
     appId: "1:319531512055:web:c58a19d08cf01c8446e3f2",
     measurementId: "G-HVQ99KEHDB"
-  }
+  },
+  supabaseUrl: 'https://puryyzvcuodyaojskzbc.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1cnl5enZjdW9keWFvanNremJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MTk3NjAsImV4cCI6MjA2MjI5NTc2MH0.9xyxxNF1AMDL1hhVAMHzHZx76Nhpz8UTr-K80ol8c3E',
 };
 
 /*

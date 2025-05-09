@@ -1,114 +1,37 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Galería de Imágenes</ion-title>
+    <ion-title>Galería</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <!-- Sección para subir imágenes -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Subir Nueva Imagen</ion-card-title>
-    </ion-card-header>
-    
-    <ion-card-content>
-      <!-- Botones para capturar/seleccionar imagen -->
-      <div class="image-option-buttons">
-        <!-- Usando Action Sheet para elegir entre cámara/galería -->
-        <ion-button expand="block" color="primary" (click)="presentImageOptions()" class="ion-margin-bottom">
-          <ion-icon name="images-outline" slot="start"></ion-icon>
-          Seleccionar o capturar imagen
-        </ion-button>
-        
-        <!-- Alternativa con input file tradicional -->
-        <div class="file-input-fallback">
-          <label for="file-input" class="file-input-label">O selecciona un archivo desde tu dispositivo</label>
-          <input id="file-input" type="file" (change)="onFileSelected($event)" accept="image/*" class="ion-hide-md-up">
-        </div>
-      </div>
-      
-      <!-- Vista previa de la imagen -->
-      <div class="preview-container" *ngIf="previewUrl">
-        <img [src]="previewUrl" alt="Vista previa" class="preview-image">
-        
-        <!-- Botón para quitar la imagen -->
-        <ion-button 
-          fill="clear" 
-          color="danger" 
-          class="remove-image-btn" 
-          (click)="resetForm()">
-          <ion-icon name="close-circle"></ion-icon>
-        </ion-button>
-      </div>
-      
-      <!-- Descripción -->
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Descripción</ion-label>
-        <ion-textarea 
-          [(ngModel)]="description" 
-          placeholder="Describe tu imagen" 
-          rows="3"
-          maxlength="200">
-        </ion-textarea>
-        <ion-note slot="helper">Descripción requerida</ion-note>
-      </ion-item>
-      
-      <!-- Botón Guardar -->
-      <ion-button 
-        expand="block" 
-        color="success" 
-        class="ion-margin-top" 
-        (click)="onSaveImage()"
-        [disabled]="!selectedFile || !description.trim()">
-        <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
-        Guardar Imagen
+<ion-content [fullscreen]="true">
+  <ion-button expand="full" (click)="presentImageOptions()">Añadir Imagen</ion-button>
+
+  <ion-item>
+    <ion-label position="stacked">Descripción</ion-label>
+    <ion-input [(ngModel)]="description" placeholder="Escribe una descripción"></ion-input>
+  </ion-item>
+
+  <div *ngIf="previewUrl" class="preview">
+    <img [src]="previewUrl" alt="Vista previa" />
+  </div>
+
+  <ion-button expand="full" color="success" (click)="onSaveImage()">Guardar Imagen</ion-button>
+
+  <ion-list *ngIf="!isLoading && fotos.length > 0">
+    <ion-item *ngFor="let foto of fotos">
+      <ion-thumbnail slot="start">
+        <img [src]="foto.url" />
+      </ion-thumbnail>
+      <ion-label>
+        <h2>{{ foto.description }}</h2>
+        <p>{{ foto.timestamp | date:'short' }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="deleteImage(foto)">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
       </ion-button>
-    </ion-card-content>
-  </ion-card>
-  
-  <!-- Sección de galería -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Mis Imágenes</ion-card-title>
-      <ion-card-subtitle>Imágenes guardadas en tu galería</ion-card-subtitle>
-    </ion-card-header>
-    
-    <ion-card-content>
-      <!-- Spinner de carga -->
-      <div class="loading-container" *ngIf="isLoading">
-        <ion-spinner name="circles"></ion-spinner>
-        <p>Cargando imágenes...</p>
-      </div>
-      
-      <!-- Mensaje si no hay imágenes -->
-      <div class="empty-gallery" *ngIf="!isLoading && fotos.length === 0">
-        <ion-icon name="images-outline" size="large"></ion-icon>
-        <p>No hay imágenes en tu galería</p>
-      </div>
-      
-      <!-- Lista de imágenes -->
-      <ion-list *ngIf="!isLoading && fotos.length > 0">
-        <ion-item-sliding *ngFor="let foto of fotos">
-          <ion-item lines="full" detail="false">
-            <ion-thumbnail slot="start">
-              <img [src]="foto.url" alt="Miniatura">
-            </ion-thumbnail>
-            <ion-label>
-              <h2>{{ foto.description }}</h2>
-              <p>{{ foto.timestamp | date:'dd/MM/yyyy HH:mm' }}</p>
-            </ion-label>
-            <ion-button slot="end" fill="clear" (click)="deleteImage(foto)">
-              <ion-icon name="trash-outline" color="danger"></ion-icon>
-            </ion-button>
-          </ion-item>
-          
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="deleteImage(foto)">
-              <ion-icon slot="icon-only" name="trash"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
+    </ion-item>
+  </ion-list>
+
+  <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
 </ion-content>
