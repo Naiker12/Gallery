@@ -1,35 +1,106 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Registro Multimedia</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-header">
+    <ion-buttons slot="start">
+      <ion-button>
+        <ion-icon slot="icon-only" name="images-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Galería Multimedia</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding gradient-background">
+  <div class="content-container">
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-layout">
+    <ion-card class="upload-card fade-in">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          Nuevo Registro
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-layout">
+          <ion-button expand="block" (click)="pickImage()" class="upload-button">
+            <ion-icon name="camera-outline" slot="start"></ion-icon>
+            Seleccionar Imagen
+          </ion-button>
+          
+          <div *ngIf="imagePreview" class="image-preview">
+            <ion-img [src]="imagePreview"></ion-img>
+          </div>
+          
+          <ion-item lines="none" class="custom-input">
+            <ion-label position="floating">Descripción</ion-label>
+            <ion-input formControlName="description" required></ion-input>
+          </ion-item>
+          
+          <ion-text color="danger" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
+            <p><ion-icon name="alert-circle-outline"></ion-icon> Descripción es obligatoria.</p>
+          </ion-text>
+          
+          <ion-button expand="block" type="submit" [disabled]="form.invalid || !imageFile || isLoading" class="save-button">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            {{ isLoading ? 'Guardando...' : 'Guardar' }}
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
 
-    
-    <ion-button expand="block" (click)="pickImage()">Seleccionar Imagen</ion-button>
 
+    <ion-card class="gallery-card fade-in">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="albums-outline"></ion-icon>
+          Registros Guardados
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
 
-    <div *ngIf="imagePreview" class="image-preview">
-      <ion-img [src]="imagePreview"></ion-img>
-    </div>
+        <div *ngIf="isLoading" class="loading-spinner">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+        
 
+        <ion-list *ngIf="!isLoading && galleryItems.length > 0; else noItems" lines="none">
+          <ion-item *ngFor="let item of galleryItems; let i = index" class="gallery-item" [attr.style]="'--animation-index: ' + i">
+            <ion-thumbnail slot="start">
+              <ion-img [src]="item.imageUrl || 'assets/placeholder-image.png'" (ionError)="handleImageError($event)"></ion-img>
+            </ion-thumbnail>
+            <ion-label>
+              <h2>{{item.description}}</h2>
+              <p>{{item.createdAt ? (item.createdAt.toDate() | date:'dd/MM/yyyy - HH:mm') : 'Fecha no disponible'}}</p>
+            </ion-label>
+            <ion-buttons slot="end">
+              <ion-button fill="clear" (click)="viewDetails(item)">
+                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="confirmDelete(item)">
+                <ion-icon name="trash-outline" slot="icon-only" color="danger"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        </ion-list>
+        
 
-    <ion-item lines="full" class="centered-item">
-      <ion-label position="floating">Descripción</ion-label>
-      <ion-input formControlName="description" required></ion-input>
-    </ion-item>
-    <ion-text color="danger" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
-      Descripción es obligatoria.
-    </ion-text>
+        <ng-template #noItems>
+          <div class="no-items">
+            <ion-icon name="images-outline"></ion-icon>
+            <p>No hay registros disponibles. ¡Comienza subiendo tu primera imagen!</p>
+          </div>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
-
-    <ion-button expand="block" type="submit" [disabled]="form.invalid || !imageFile">
-      Guardar
-    </ion-button>
-
-  </form>
-
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="scrollToTop()">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

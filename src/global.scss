@@ -5,6 +5,7 @@
  * the entire app and not just one component. Additionally, this file can be
  * used as an entry point to import other CSS/Sass files to be included in the
  * output CSS.
+ *
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
@@ -25,13 +26,112 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Import dark mode */
+@import "@ionic/angular/css/palettes/dark.always.css";
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* Fuentes personalizadas */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Variables globales para nuestro tema oscuro personalizado */
+:root {
+  /* Colores principales del tema */
+  --ion-background-color: #121212;
+  --ion-background-color-rgb: 18, 18, 18;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+  
+  /* Colores de acento personalizados */
+  --theme-primary: #8e2de2;
+  --theme-secondary: #4a00e0;
+  --theme-accent: #00c6ff;
+  --theme-success: #2ecc71;
+  --theme-warning: #f39c12;
+  --theme-danger: #e74c3c;
+  
+  /* Colores para elementos de UI */
+  --theme-card-bg: rgba(30, 30, 30, 0.8);
+  --theme-input-bg: rgba(45, 45, 45, 0.6);
+  --theme-border-color: rgba(255, 255, 255, 0.1);
+  --theme-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  
+  /* Fuentes */
+  --ion-font-family: 'Poppins', sans-serif;
+}
+
+/* Estilos globales */
+body {
+  font-family: var(--ion-font-family);
+  background-color: var(--ion-background-color);
+}
+
+/* Personalización de botones y elementos comunes */
+ion-button {
+  --box-shadow: var(--theme-box-shadow);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+ion-card {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-color);
+  box-shadow: var(--theme-box-shadow);
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--theme-border-color);
+}
+
+ion-input, ion-textarea {
+  --background: var(--theme-input-bg);
+  --color: var(--ion-text-color);
+  --placeholder-color: rgba(255, 255, 255, 0.5);
+  --placeholder-opacity: 1;
+}
+
+/* Estilos para las transiciones y animaciones */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Personalización de scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-secondary);
+}
+
+/* Efectos de hover para tarjetas */
+ion-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+ion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
