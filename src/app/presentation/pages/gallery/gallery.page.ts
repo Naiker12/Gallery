@@ -1,17 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SupabaseService } from 'src/app/core/services/supabase.service';
-import { Firestore, collection, addDoc, Timestamp, getDocs, query, orderBy, doc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, Timestamp } from '@angular/fire/firestore';
 import { CameraService } from 'src/app/core/services/camara.service';
-import { AlertController, IonContent, LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { IonContent, LoadingController, ToastController, NavController, AlertController } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-
-interface GalleryItem {
-  id: string;
-  description: string;
-  imageUrl: string;
-  createdAt: any;
-}
 
 @Component({
   selector: 'app-gallery',
@@ -25,7 +18,6 @@ export class GalleryPage implements OnInit {
   form: FormGroup;
   imageFile: File | null = null;
   imagePreview: string | SafeUrl | null = null;
-  galleryItems: GalleryItem[] = [];
   isLoading: boolean = false;
   
   constructor(
@@ -33,11 +25,11 @@ export class GalleryPage implements OnInit {
     private cameraService: CameraService,
     private supabaseService: SupabaseService,
     private firestore: Firestore,
-    private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private navCtrl: NavController,
+    private alertCtrl: AlertController
   ) {
     this.form = this.fb.group({
       description: ['', [Validators.required, Validators.minLength(3)]]
@@ -45,42 +37,25 @@ export class GalleryPage implements OnInit {
   }
 
   ngOnInit() {
-    this.loadGalleryItems();
-  }
-
-  async loadGalleryItems() {
-    this.isLoading = true;
-    try {
-      const galleryRef = collection(this.firestore, 'gallery');
-      const q = query(galleryRef, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      
-      this.galleryItems = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          description: data['description'] || 'Sin descripción',
-          imageUrl: data['imageUrl'] || '',
-          createdAt: data['createdAt'] || null
-        } as GalleryItem;
-      });
-    } catch (error) {
-      console.error('Error al cargar los datos:', error);
-      this.presentToast('Error al cargar los datos. Intente nuevamente.', 'danger');
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   async pickImage() {
     try {
       const imagePath = await this.cameraService.captureImage();
+      
+      if (!imagePath) {
+        this.presentToast('No se seleccionó ninguna imagen', 'warning');
+        return;
+      }
+      
       const response = await fetch(imagePath);
       const blob = await response.blob();
       this.imageFile = new File([blob], `photo_${Date.now()}.jpg`, { type: blob.type });
       
       const objectUrl = URL.createObjectURL(blob);
       this.imagePreview = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+      
+      this.presentToast('Imagen seleccionada correctamente', 'success');
     } catch (error) {
       console.error('Error al seleccionar imagen:', error);
       this.presentToast('Error al seleccionar la imagen', 'danger');
@@ -88,8 +63,14 @@ export class GalleryPage implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.imageFile || this.form.invalid) return;
+    if (!this.imageFile || this.form.invalid) {
+      if (!this.imageFile) {
+        this.presentToast('Debes seleccionar una imagen', 'warning');
+      }
+      return;
+    }
 
+    this.isLoading = true;
     const loading = await this.loadingCtrl.create({
       message: 'Guardando registro...',
       spinner: 'crescent'
@@ -112,18 +93,28 @@ export class GalleryPage implements OnInit {
 
       await addDoc(collection(this.firestore, 'gallery'), data);
       
-
-      await this.loadGalleryItems();
+      const alert = await this.alertCtrl.create({
+        header: '¡Registro guardado!',
+        message: '¿Deseas ver la lista de registros o agregar uno nuevo?',
+        buttons: [
+          {
+            text: 'Agregar otro',
+            role: 'cancel',
+            handler: () => {
+              this.resetForm();
+            }
+          },
+          {
+            text: 'Ver lista',
+            handler: () => {
+              this.navCtrl.navigateForward('/list');
+            }
+          }
+        ]
+      });
       
-      this.form.reset();
-      this.imageFile = null;
-      this.imagePreview = null;
+      await alert.present();
       
-      this.presentToast('¡Registro guardado correctamente!', 'success');
-  
-      setTimeout(() => {
-        this.scrollToGallery();
-      }, 500);
     } catch (error) {
       console.error('Error al guardar:', error);
       this.presentToast('Error al guardar el registro', 'danger');
@@ -133,75 +124,10 @@ export class GalleryPage implements OnInit {
     }
   }
   
-  async viewDetails(item: GalleryItem) {
-    const alert = await this.alertCtrl.create({
-      header: item.description,
-      message: `
-        <div style="text-align: center;">
-          <img src="${item.imageUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px; margin-bottom: 10px;">
-          <p>Fecha: ${item.createdAt?.toDate().toLocaleString() || 'No disponible'}</p>
-        </div>
-      `,
-      buttons: ['Cerrar']
-    });
-    
-    await alert.present();
-  }
-  
-  async confirmDelete(item: GalleryItem) {
-    const alert = await this.alertCtrl.create({
-      header: 'Confirmar eliminación',
-      message: '¿Estás seguro que deseas eliminar este registro?',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        }, {
-          text: 'Eliminar',
-          handler: () => {
-            this.deleteItem(item);
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
-  
-  async deleteItem(item: GalleryItem) {
-    this.isLoading = true;
-    
-    try {
-
-      const itemRef = doc(this.firestore, 'gallery', item.id);
-      await deleteDoc(itemRef);
-      
-  
-      
-      this.galleryItems = this.galleryItems.filter(i => i.id !== item.id);
-      this.presentToast('Registro eliminado correctamente', 'success');
-    } catch (error) {
-      console.error('Error al eliminar:', error);
-      this.presentToast('Error al eliminar el registro', 'danger');
-    } finally {
-      this.isLoading = false;
-    }
-  }
-  
-  handleImageError(event: any) {
-    const imgElement = event.target;
-    imgElement.src = 'assets/placeholder-image.png';
-  }
-  
-  scrollToTop() {
-    this.content.scrollToTop(500);
-  }
-  
-  scrollToGallery() {
-    const galleryElement = document.querySelector('.gallery-card');
-    if (galleryElement) {
-      this.content.scrollToPoint(0, galleryElement.getBoundingClientRect().top, 500);
-    }
+  resetForm() {
+    this.form.reset();
+    this.imageFile = null;
+    this.imagePreview = null;
   }
   
   private async presentToast(message: string, color: string = 'success') {

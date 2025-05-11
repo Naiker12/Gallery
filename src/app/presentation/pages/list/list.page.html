@@ -1,0 +1,101 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Galería Multimedia</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/gallery">
+        <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="gallery-background">
+  <!-- Barra de búsqueda flotante -->
+  <ion-searchbar
+    class="floating-searchbar"
+    placeholder="Buscar registros..."
+    [(ngModel)]="searchTerm"
+    (ionChange)="filterItems($event)"
+    animated
+    debounce="300"
+  ></ion-searchbar>
+
+  <!-- Contenedor principal de la galería -->
+  <div class="gallery-container">
+    <!-- Vista de mosaico (grid) -->
+    <div class="grid-view" *ngIf="viewMode === 'grid'">
+      <div class="grid-item" *ngFor="let item of filteredItems; let i = index" 
+           [style.--animation-delay]="i * 50 + 'ms'"
+           (click)="viewDetails(item)">
+        <div class="image-container">
+          <ion-img [src]="item.imageUrl" (ionError)="handleImageError($event)"></ion-img>
+          <div class="image-overlay"></div>
+        </div>
+        <div class="item-info">
+          <h3 class="item-title">{{item.description || 'Sin título'}}</h3>
+          <p class="item-date">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{item.createdAt ? (item.createdAt.toDate() | date:'dd/MM/yyyy') : 'Sin fecha'}}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista de lista (alternativa) -->
+    <ion-list class="list-view" *ngIf="viewMode === 'list'">
+      <ion-item-sliding *ngFor="let item of filteredItems">
+        <ion-item (click)="viewDetails(item)" lines="none">
+          <ion-thumbnail slot="start">
+            <ion-img [src]="item.imageUrl" (ionError)="handleImageError($event)"></ion-img>
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{item.description || 'Sin título'}}</h2>
+            <p>
+              <ion-icon name="calendar-outline"></ion-icon>
+              {{item.createdAt ? (item.createdAt.toDate() | date:'dd/MM/yyyy - HH:mm') : 'Sin fecha'}}
+            </p>
+          </ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="confirmDelete(item)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+
+    <!-- Estado vacío -->
+    <div class="empty-state" *ngIf="!isLoading && filteredItems.length === 0">
+      <ion-icon name="images-outline"></ion-icon>
+      <h3>No hay registros</h3>
+      <p>Comienza agregando tu primer elemento multimedia</p>
+      <ion-button expand="block" shape="round" routerLink="/gallery">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Agregar nuevo
+      </ion-button>
+    </div>
+
+    <!-- Cargando -->
+    <div class="loading-state" *ngIf="isLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando galería...</p>
+    </div>
+  </div>
+
+  <!-- Botón para cambiar vista -->
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button (click)="toggleViewMode()">
+      <ion-icon [name]="viewMode === 'grid' ? 'list-outline' : 'grid-outline'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Botón para volver arriba -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="filteredItems.length > 6">
+    <ion-fab-button (click)="scrollToTop()">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
