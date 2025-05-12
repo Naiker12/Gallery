@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Firestore, collection, getDocs, query, orderBy, doc, deleteDoc } from '@angular/fire/firestore';
 import { AlertController, IonContent, LoadingController, ToastController } from '@ionic/angular';
+import { SupabaseService } from 'src/app/core/services/supabase.service';
 
 interface GalleryItem {
   id: string;
   description: string;
   imageUrl: string;
+  imagePath?: string; 
   createdAt: any;
 }
 
@@ -28,7 +30,8 @@ export class ListPage implements OnInit {
     private firestore: Firestore,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private supabase: SupabaseService
   ) {}
 
   ngOnInit() {
@@ -73,21 +76,44 @@ export class ListPage implements OnInit {
       item.description.toLowerCase().includes(searchTerm)
     );
   }
+
+   getImageUrl(item: GalleryItem): string {
+    if (!item.imagePath) {
+      return 'assets/placeholder-image.png';
+    }
+
+    if (item.imagePath.startsWith('http')) {
+      return item.imagePath;
+    }
+    
+
+    try {
+      const url = this.supabase.getImageUrl(item.imagePath);
+      return url || 'assets/placeholder-image.png';
+    } catch (error) {
+      console.error('Error obteniendo URL de Supabase:', error);
+      return 'assets/placeholder-image.png';
+    }
+  }
   
   toggleViewMode() {
     this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
   }
   
-  async viewDetails(item: GalleryItem) {
+    async viewDetails(item: GalleryItem) {
+    const imageUrl = this.getImageUrl(item);
+    
     const alert = await this.alertCtrl.create({
       header: item.description || 'Sin título',
       cssClass: 'image-alert',
       message: `
         <div style="text-align: center;">
-          <img src="${item.imageUrl}" style="max-width: 100%; max-height: 60vh; border-radius: 12px; margin: 10px 0; object-fit: contain;">
+          <img src="${imageUrl}" 
+               style="max-width: 100%; max-height: 60vh; border-radius: 12px; margin: 10px 0; object-fit: contain;"
+               onerror="this.src='assets/placeholder-image.png'">
           <p style="font-size: 14px; color: #666; margin-top: 10px;">
             <ion-icon name="calendar-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
-            ${item.createdAt?.toDate().toLocaleDateString() || 'Sin fecha'}
+            ${item.createdAt?.toDate().toLocaleDateString() || 'No disponible'}
           </p>
         </div>
       `,

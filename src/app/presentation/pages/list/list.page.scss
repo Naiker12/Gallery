@@ -17,7 +17,6 @@
   --dark-text-alt: #A0A0A0;
 }
 
-/* Encabezado más bajo */
 .gradient-header {
   --background: linear-gradient(135deg, var(--tertiary-color) 0%, var(--primary-color) 100%);
   --color: white;
@@ -34,12 +33,12 @@
   }
 }
 
-/* Fondo */
+
 .gallery-background {
   --background: var(--light-bg);
 }
 
-/* Barra de búsqueda */
+
 .floating-searchbar {
   position: sticky;
   top: 0;
@@ -54,14 +53,14 @@
   }
 }
 
-/* Contenedor principal */
+
 .gallery-container {
   padding: 8px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Vista de mosaico (grid) */
+
 .grid-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -140,7 +139,7 @@
   }
 }
 
-/* Vista de lista */
+
 .list-view {
   background: transparent;
   padding: 0;
@@ -186,7 +185,7 @@
   }
 }
 
-/* Estados */
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -243,7 +242,7 @@
   }
 }
 
-/* Botones FAB */
+
 ion-fab-button {
   --background: var(--primary-color);
   --background-activated: var(--primary-dark);
@@ -253,7 +252,7 @@ ion-fab-button {
   }
 }
 
-/* Animaciones */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -265,7 +264,7 @@ ion-fab-button {
   }
 }
 
-/* Estilos para el alert de imagen */
+
 .image-alert {
   .alert-wrapper {
     max-width: 90%;
@@ -293,7 +292,7 @@ ion-fab-button {
   --color: white;
 }
 
-/* Modo oscuro */
+
 @media (prefers-color-scheme: dark) {
   .gallery-background {
     --background: var(--dark-bg);

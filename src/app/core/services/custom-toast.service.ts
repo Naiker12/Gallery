@@ -7,11 +7,6 @@ import { ToastController } from '@ionic/angular';
 export class CustomToastService {
   constructor(private toastController: ToastController) {}
 
-  /**
-   * Muestra un toast con mensaje de éxito
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (opcional)
-   */
   async success(message: string, duration: number = 2000): Promise<void> {
     const toast = await this.toastController.create({
       message,
@@ -23,11 +18,6 @@ export class CustomToastService {
     await toast.present();
   }
 
-  /**
-   * Muestra un toast con mensaje de error
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (opcional)
-   */
   async error(message: string, duration: number = 3000): Promise<void> {
     const toast = await this.toastController.create({
       message,
@@ -39,11 +29,6 @@ export class CustomToastService {
     await toast.present();
   }
 
-  /**
-   * Muestra un toast con mensaje de advertencia
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (opcional)
-   */
   async warning(message: string, duration: number = 3000): Promise<void> {
     const toast = await this.toastController.create({
       message,
@@ -55,11 +40,6 @@ export class CustomToastService {
     await toast.present();
   }
 
-  /**
-   * Muestra un toast con mensaje informativo
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (opcional)
-   */
   async info(message: string, duration: number = 2000): Promise<void> {
     const toast = await this.toastController.create({
       message,

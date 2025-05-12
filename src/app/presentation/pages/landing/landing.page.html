@@ -1,19 +1,22 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Bienvenido a ImageCode</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="gradient-header">
+    <ion-title>ImageCode</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" [fullscreen]="true">
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Tu galería personal</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Organiza y guarda tus imágenes de forma segura.</p>
-      <ion-button expand="block" routerLink="/gallery">
-        Ir a la Galería
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+<ion-content class="gradient-background">
+  <div class="content-container main-container">
+    <img src="assets/3D.png" alt="Imagen 3D" class="image-3d" #image3d>
+    
+    <ion-card class="welcome-card fade-in">
+      <ion-card-content>
+        <h1 class="welcome-title">Bienvenido a ImageCode</h1>
+        <p class="welcome-subtitle">Organiza y guarda tus imágenes de forma segura.</p>
+        <ion-button expand="block" routerLink="/gallery" class="action-button">
+          <ion-icon name="images-outline" slot="start"></ion-icon>
+          IR A LA GALERÍA
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

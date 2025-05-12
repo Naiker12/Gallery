@@ -13,7 +13,6 @@
 </ion-header>
 
 <ion-content class="gallery-background">
-  <!-- Barra de búsqueda flotante -->
   <ion-searchbar
     class="floating-searchbar"
     placeholder="Buscar registros..."
@@ -23,9 +22,7 @@
     debounce="300"
   ></ion-searchbar>
 
-  <!-- Contenedor principal de la galería -->
   <div class="gallery-container">
-    <!-- Vista de mosaico (grid) -->
     <div class="grid-view" *ngIf="viewMode === 'grid'">
       <div class="grid-item" *ngFor="let item of filteredItems; let i = index" 
            [style.--animation-delay]="i * 50 + 'ms'"
@@ -44,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Vista de lista (alternativa) -->
     <ion-list class="list-view" *ngIf="viewMode === 'list'">
       <ion-item-sliding *ngFor="let item of filteredItems">
         <ion-item (click)="viewDetails(item)" lines="none">
@@ -67,7 +63,6 @@
       </ion-item-sliding>
     </ion-list>
 
-    <!-- Estado vacío -->
     <div class="empty-state" *ngIf="!isLoading && filteredItems.length === 0">
       <ion-icon name="images-outline"></ion-icon>
       <h3>No hay registros</h3>
@@ -78,21 +73,18 @@
       </ion-button>
     </div>
 
-    <!-- Cargando -->
     <div class="loading-state" *ngIf="isLoading">
       <ion-spinner name="crescent"></ion-spinner>
       <p>Cargando galería...</p>
     </div>
   </div>
 
-  <!-- Botón para cambiar vista -->
   <ion-fab vertical="bottom" horizontal="start" slot="fixed">
     <ion-fab-button (click)="toggleViewMode()">
       <ion-icon [name]="viewMode === 'grid' ? 'list-outline' : 'grid-outline'"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-  <!-- Botón para volver arriba -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="filteredItems.length > 6">
     <ion-fab-button (click)="scrollToTop()">
       <ion-icon name="arrow-up-outline"></ion-icon>
