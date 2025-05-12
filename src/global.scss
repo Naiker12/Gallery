@@ -56,12 +56,38 @@
   
   /* Fuentes */
   --ion-font-family: 'Poppins', sans-serif;
+  
+  /* Safe-area para dispositivos con notch */
+  --ion-safe-area-top: max(env(safe-area-inset-top), 20px);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
 }
 
 /* Estilos globales */
 body {
   font-family: var(--ion-font-family);
   background-color: var(--ion-background-color);
+  padding-top: var(--ion-safe-area-top);
+}
+
+/* Corrección específica para el header en dispositivos Samsung */
+ion-header {
+  padding-top: var(--ion-safe-area-top);
+  min-height: calc(56px + var(--ion-safe-area-top));
+}
+
+ion-toolbar {
+  --min-height: 56px;
+  padding-top: var(--ion-safe-area-top);
+}
+
+/* Asegurar que el contenido no quede detrás del header */
+ion-content {
+  --padding-top: calc(56px + var(--ion-safe-area-top));
+  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-start: var(--ion-safe-area-left);
+  --padding-end: var(--ion-safe-area-right);
 }
 
 /* Personalización de botones y elementos comunes */
@@ -134,4 +160,19 @@ ion-card {
 ion-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* Corrección adicional para dispositivos Android */
+@media screen and (max-width: 768px) {
+  html.plt-android ion-header {
+    padding-top: var(--ion-safe-area-top);
+  }
+  
+  html.plt-android ion-toolbar {
+    padding-top: var(--ion-safe-area-top);
+  }
+  
+  html.plt-android ion-content {
+    --padding-top: calc(56px + var(--ion-safe-area-top));
+  }
 }
