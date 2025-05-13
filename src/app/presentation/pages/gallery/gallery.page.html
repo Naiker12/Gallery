@@ -5,8 +5,8 @@
     </ion-buttons>
     <ion-title>Galería</ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/list">
-        <ion-icon name="list-outline" slot="icon-only"></ion-icon>
+      <ion-button routerLink="/list" fill="clear">
+        <ion-icon name="list-outline" slot="start"></ion-icon>
         <ion-label>Lista</ion-label>
       </ion-button>
     </ion-buttons>
@@ -18,39 +18,54 @@
     <ion-card class="upload-card fade-in">
       <ion-card-header>
         <ion-card-title>
-          <ion-icon name="add-circle-outline"></ion-icon>
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
           Nuevo Registro
         </ion-card-title>
       </ion-card-header>
-      
+
       <ion-card-content>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-layout">
-          <ion-button expand="block" class="upload-button" (click)="pickImage()">
-            <ion-icon name="image-outline" slot="start"></ion-icon>
-            Seleccionar Imagen
-          </ion-button>
-          
+
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-button expand="block" class="upload-button" (click)="takePhoto()">
+                  <ion-icon name="camera-outline" slot="start"></ion-icon>
+                  Tomar Foto
+                </ion-button>
+              </ion-col>
+              <ion-col size="12" size-md="6">
+                <ion-button expand="block" class="upload-button" (click)="pickImageFromGallery()">
+                  <ion-icon name="image-outline" slot="start"></ion-icon>
+                  Galería
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
           <div class="image-container">
-            <div class="image-preview" *ngIf="imagePreview">
-              <img [src]="imagePreview" alt="Vista previa" class="preview-img">
-            </div>
-            <div class="image-placeholder" *ngIf="!imagePreview">
-              <ion-icon name="image-outline"></ion-icon>
-              <p>Vista previa de imagen</p>
-            </div>
+            <ng-container *ngIf="imagePreview; else noImage">
+              <div class="image-preview">
+                <img [src]="imagePreview" alt="Vista previa" class="preview-img" />
+              </div>
+            </ng-container>
+            <ng-template #noImage>
+              <div class="image-placeholder">
+                <ion-icon name="image-outline" size="large"></ion-icon>
+                <p>Vista previa de imagen</p>
+              </div>
+            </ng-template>
           </div>
-          
+
           <ion-item lines="none" class="custom-input">
             <ion-label position="floating">Descripción</ion-label>
             <ion-input formControlName="description" type="text"></ion-input>
           </ion-item>
-          
-          <div class="validation-error" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
-            <ion-text color="danger">
-              Descripción es obligatoria.
-            </ion-text>
+
+          <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="validation-error">
+            <ion-text color="danger">Descripción es obligatoria.</ion-text>
           </div>
-          
+
           <ion-button expand="block" type="submit" class="save-button" [disabled]="form.invalid || !imageFile">
             <ion-icon name="save-outline" slot="start"></ion-icon>
             {{ isLoading ? 'Guardando...' : 'Guardar' }}
@@ -59,7 +74,7 @@
       </ion-card-content>
     </ion-card>
   </div>
-  
+
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button routerLink="/list">
       <ion-icon name="list"></ion-icon>

@@ -8,7 +8,7 @@
         android:id="@+id/widget_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/default_image" />
+        android:src="@drawable/splash" />
 
     <TextView
         android:id="@+id/widget_description"
